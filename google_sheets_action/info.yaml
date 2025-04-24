@@ -1,0 +1,16 @@
+package:
+  name: jivas/google_sheets_action
+  author: V75 Inc.
+  architype: GoogleSheetsAction
+  version: 0.0.1
+  meta:
+    title: Google Sheets Action
+    description: Provides seamless integration with Google Sheets using the gspread API for managing and automating spreadsheet tasks.
+    group: core
+    type: action
+  config:
+    singleton: true
+  dependencies:
+    jivas: 2.0.0
+    pip:
+      gspread: 6.1.3
