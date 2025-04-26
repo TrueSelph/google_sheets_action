@@ -47,9 +47,9 @@ node GoogleSheetsAction :Action: {
     }
 
 
-    can open_spreedsheet() -> dict {
+    can open_spreadsheet() -> dict {
         credentials = self.get_credentials();
-        spreadsheet = GoogleSheetAPI.open_spreedsheet(credentials);
+        spreadsheet = GoogleSheetAPI.open_spreadsheet(credentials);
         return spreadsheet;
     }
 
@@ -170,31 +170,57 @@ node GoogleSheetsAction :Action: {
     }
 
 
-    can healthcheck() -> bool {
+    can healthcheck() -> Union[bool, dict] {
         try {
-            if(
-                self.key_or_url and
-                self.worksheet_title and
-                self.info_type and
-                self.project_id and
-                self.private_key_id and
-                self.private_key and
-                self.client_email and
-                self.client_id and
-                self.auth_uri and
-                self.token_uri and
-                self.auth_provider_x509_cert_url and
-                self.client_x509_cert_url and
-                self.universe_domain
-            ) {
-                return True;
+            # Validate required credentials
+            if not self.project_id or not self.private_key or not self.client_email or not self.token_uri {
+                return {
+                    "status": False,
+                    "message": "Missing required Google Service Account credentials.",
+                    "severity": "error"
+                };
             }
-            return False;
+
+            # Validate key_or_url
+            if not self.key_or_url {
+                return {
+                    "status": False,
+                    "message": "Missing key_or_url for the spreadsheet.",
+                    "severity": "error"
+                };
+            }
+
+            # Attempt to connect to Google Sheets API
+            credentials = self.get_credentials();
+            try {
+                spreadsheet = GoogleSheetAPI.open_spreadsheet(credentials);
+                if not spreadsheet {
+                    return {
+                        "status": False,
+                        "message": "Unable to access the spreadsheet. Please check the key_or_url and permissions.",
+                        "severity": "error"
+                    };
+                }
+            } except Exception as e {
+                return {
+                    "status": False,
+                    "message": f"Failed to open the spreadsheet: {e}",
+                    "severity": "error"
+                };
+            }
+            
+            return True;
+
         } except Exception as e {
-            self.logger.error(f"An exception occurred in {self.label}:\n{traceback.format_exc()}\n");
-            return False;
+            return {
+                "status": False,
+                "message": f"Failed to connect to Google Sheets API: {e}",
+                "severity": "error"
+            };
         }
-    }
+    } 
+
+
 }
 
 
