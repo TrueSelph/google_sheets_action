@@ -23,6 +23,10 @@ node GoogleSheetsAction :Action: {
     has client_x509_cert_url:str = "";
     has universe_domain:str = "googleapis.com";
 
+    can on_enable() {
+        self.on_register();
+    }
+
 
     can api() -> GoogleSheetsAPI {
         return GoogleSheetsAPI(
