@@ -1,7 +1,6 @@
 """This module contains the GoogleSheetAPI class for interacting with the Google Sheets API."""
 
 import logging
-import traceback
 from typing import Optional, Union
 
 import gspread
@@ -33,22 +32,25 @@ class GoogleSheetsAPI:
 
         :param credentials: Dictionary containing Google API credentials.
         """
-        self.credentials = {
-            "type": info_type,
-            "project_id": project_id,
-            "private_key_id": private_key_id,
-            "private_key": private_key,
-            "client_email": client_email,
-            "client_id": client_id,
-            "auth_uri": auth_uri,
-            "token_uri": token_uri,
-            "auth_provider_x509_cert_url": auth_provider_x509_cert_url,
-            "client_x509_cert_url": client_x509_cert_url,
-            "universe_domain": universe_domain,
-        }
-        self.key_or_url = key_or_url
-        self.worksheet_title = worksheet_title
-        self.gc = gspread.service_account_from_dict(self.credentials)
+        try:
+            self.credentials = {
+                "type": info_type,
+                "project_id": project_id,
+                "private_key_id": private_key_id,
+                "private_key": private_key,
+                "client_email": client_email,
+                "client_id": client_id,
+                "auth_uri": auth_uri,
+                "token_uri": token_uri,
+                "auth_provider_x509_cert_url": auth_provider_x509_cert_url,
+                "client_x509_cert_url": client_x509_cert_url,
+                "universe_domain": universe_domain,
+            }
+            self.key_or_url = key_or_url
+            self.worksheet_title = worksheet_title
+            self.gc = gspread.service_account_from_dict(self.credentials)
+        except Exception as e:
+            self.logger.error(f"Failed initializing GoogleSheetAPI: {e}")
 
     def open_spreadsheet(self, key_or_url: str = "") -> gspread.Spreadsheet:
         """
@@ -66,8 +68,8 @@ class GoogleSheetsAPI:
 
             return self.gc.open_by_key(self.key_or_url)
         except Exception as e:
-            self.logger.error(f"Error opening spreadsheet: {traceback.format_exc()}")
-            raise e
+            self.logger.error(f"Failed to opening spreadsheet: {e}")
+            return {"ok": False, "error": f"Failed to opening spreadsheet: {e}"}
 
     def open_worksheet(
         self, key_or_url: str = "", worksheet_title: str = ""
@@ -87,8 +89,8 @@ class GoogleSheetsAPI:
             worksheet = response.worksheet(worksheet_title)
             return worksheet.get_all_records()
         except Exception as e:
-            self.logger.error(f"Error opening worksheet: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed to opening worksheet: {e}")
+            return {"ok": False, "error": f"Failed to opening worksheet: {e}"}
 
     def create_spreadsheet(self, title: str) -> Union[str, dict]:
         """
@@ -101,8 +103,8 @@ class GoogleSheetsAPI:
             spreadsheet = self.gc.create(title)
             return spreadsheet.id
         except Exception as e:
-            self.logger.error(f"Error creating spreadsheet: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed creating spreadsheet: {e}")
+            return {"ok": False, "error": f"Failed creating spreadsheet: {e}"}
 
     def create_worksheet(
         self, title: str, key_or_url: str = "", rows: int = 100, cols: int = 20
@@ -121,8 +123,8 @@ class GoogleSheetsAPI:
             worksheet = spreadsheet.add_worksheet(title=title, rows=rows, cols=cols)
             return worksheet.id
         except Exception as e:
-            self.logger.error(f"Error creating worksheet: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed creating worksheet: {e}")
+            return {"ok": False, "error": f"Failed creating worksheet: {e}"}
 
     def delete_worksheet(
         self, key_or_url: str = "", worksheet_title: str = ""
@@ -143,8 +145,8 @@ class GoogleSheetsAPI:
             spreadsheet.del_worksheet(worksheet)
             return True
         except Exception as e:
-            self.logger.error(f"Error deleting worksheet: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed deleting worksheet: {e}")
+            return {"ok": False, "error": f"Failed deleting worksheet: {e}"}
 
     def share_spreadsheet(
         self,
@@ -174,8 +176,8 @@ class GoogleSheetsAPI:
 
             return shs
         except Exception as e:
-            self.logger.error(f"Error sharing spreadsheet: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed sharing spreadsheet: {e}")
+            return {"ok": False, "error": f"Failed sharing spreadsheet: {e}"}
 
     def update_cell(
         self, cell: str, value: str, key_or_url: str = "", worksheet_title: str = ""
@@ -198,8 +200,8 @@ class GoogleSheetsAPI:
             result = worksheet.update(cell, value)
             return result
         except Exception as e:
-            self.logger.error(f"Error updating cell: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed updating cell: {e}")
+            return {"ok": False, "error": f"Failed updating cell: {e}"}
 
     def update_cell_by_coordinates(
         self,
@@ -208,7 +210,7 @@ class GoogleSheetsAPI:
         key_or_url: str = "",
         worksheet_title: str = "",
         value: str = "",
-    ) -> Union[dict, dict]:
+    ) -> dict:
         """
         Updates a cell by coordinates in the specified worksheet.
 
@@ -226,10 +228,8 @@ class GoogleSheetsAPI:
             result = worksheet.update_cell(row, col, value)
             return result
         except Exception as e:
-            self.logger.error(
-                f"Error updating cell by coordinates cell: {traceback.format_exc()}"
-            )
-            return {"error": str(e)}
+            self.logger.error(f"Failed updating cell by coordinates: {e}")
+            return {"ok": False, "error": f"Failed updating cell by coordinates: {e}"}
 
     def format_cell(
         self,
@@ -237,7 +237,7 @@ class GoogleSheetsAPI:
         worksheet_title: str = "",
         cell: str = "",
         format_options: Optional[dict] = None,
-    ) -> Union[dict, dict]:
+    ) -> dict:
         """
         Formats a cell or a range of cells in the specified worksheet.
 
@@ -253,12 +253,12 @@ class GoogleSheetsAPI:
             result = worksheet.format(cell, format_options)
             return result
         except Exception as e:
-            self.logger.error(f"unable to format cell: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed formatting cell: {e}")
+            return {"ok": False, "error": f"Failed formatting cell: {e}"}
 
     def merge_cells(
         self, key_or_url: str = "", worksheet_title: str = "", cells: str = ""
-    ) -> Union[dict, dict]:
+    ) -> dict:
         """Merges cells in the specified worksheet."""
         try:
             if not worksheet_title:
@@ -269,8 +269,8 @@ class GoogleSheetsAPI:
             result = worksheet.merge_cells(cells)
             return result
         except Exception as e:
-            self.logger.error(f"unable to merge cells: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed merging cells: {e}")
+            return {"ok": False, "error": f"Failed merging cells: {e}"}
 
     def insert_rows(
         self,
@@ -280,7 +280,7 @@ class GoogleSheetsAPI:
         row_index: str = "",
         value_input_option: str = "RAW",
         inherit_from_before: bool = False,
-    ) -> Union[dict, dict]:
+    ) -> dict:
         """Inserts rows into the specified worksheet."""
         try:
             if not worksheet_title:
@@ -293,12 +293,12 @@ class GoogleSheetsAPI:
             )
             return result
         except Exception as e:
-            self.logger.error(f"unable to insert rows: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed inserting rows: {e}")
+            return {"ok": False, "error": f"Failed inserting rows: {e}"}
 
     def batch_clear(
         self, range: list, key_or_url: str = "", worksheet_title: str = ""
-    ) -> Union[dict, dict]:
+    ) -> dict:
         """Clears a range of cells in the specified worksheet."""
         try:
             if not worksheet_title:
@@ -309,12 +309,12 @@ class GoogleSheetsAPI:
             result = worksheet.batch_clear(range)
             return result
         except Exception as e:
-            self.logger.error(f"unable to batch clear: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed clearing cells: {e}")
+            return {"ok": False, "error": f"Failed clearing cells: {e}"}
 
     def find_cell(
         self, value: str, key_or_url: str = "", worksheet_title: str = ""
-    ) -> Union[dict, dict]:
+    ) -> dict:
         """Finds a cell in the specified worksheet."""
         try:
             if not worksheet_title:
@@ -327,5 +327,5 @@ class GoogleSheetsAPI:
             return {"status": 200, "row": res.row, "column": res.col}
 
         except Exception as e:
-            self.logger.error(f"unable to find cell: {traceback.format_exc()}")
-            return {"error": str(e)}
+            self.logger.error(f"Failed finding cell: {e}")
+            return {"ok": False, "error": f"Failed finding cell: {e}"}

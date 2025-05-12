@@ -11,6 +11,6 @@ package:
   config:
     singleton: true
   dependencies:
-    jivas: 2.0.0
+    jivas: '>=2.0.0-alpha.40'
     pip:
       gspread: 6.1.3

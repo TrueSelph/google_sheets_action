@@ -70,10 +70,10 @@ node GoogleSheetsAction :Action: {
             try {
                 spreadsheet = self.api().open_spreadsheet();
 
-                if not spreadsheet {
+                if "error" in spreadsheet {
                     return {
                         "status": False,
-                        "message": "Unable to access the spreadsheet. Please check the key_or_url and permissions.",
+                        "message": f"{spreadsheet['error']}",
                         "severity": "error"
                     };
                 }
