@@ -6,6 +6,7 @@ import:jac from jivas.agent.action.action { Action }
 
 
 node GoogleSheetsAction :Action: {
+    # Provides seamless integration with Google Sheets using the gspread API for managing and automating spreadsheet tasks.
 
     has description:str = "Provides seamless integration with Google Sheets using the gspread API for managing and automating spreadsheet tasks.";
     has key_or_url:str = "";
@@ -26,7 +27,6 @@ node GoogleSheetsAction :Action: {
     can on_enable() {
         self.on_register();
     }
-
 
     can api() -> GoogleSheetsAPI {
         return GoogleSheetsAPI(
@@ -84,7 +84,7 @@ node GoogleSheetsAction :Action: {
                     "severity": "error"
                 };
             }
-            
+
             return True;
 
         } except Exception as e {
@@ -94,7 +94,7 @@ node GoogleSheetsAction :Action: {
                 "severity": "error"
             };
         }
-    } 
+    }
 
 
 }
