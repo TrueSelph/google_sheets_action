@@ -1,11 +1,11 @@
-import:py logging;
-import:py traceback;
-import:py from logging { Logger }
-import:py from .modules.google_sheet_api { GoogleSheetsAPI }
-import:jac from jivas.agent.action.action { Action }
+import logging;
+import traceback;
+import from logging { Logger }
+import from .modules.google_sheet_api { GoogleSheetsAPI }
+import from jivas.agent.action.action { Action }
 
 
-node GoogleSheetsAction :Action: {
+node GoogleSheetsAction(Action) {
     # Provides seamless integration with Google Sheets using the gspread API for managing and automating spreadsheet tasks.
 
     has description:str = "Provides seamless integration with Google Sheets using the gspread API for managing and automating spreadsheet tasks.";
@@ -24,11 +24,11 @@ node GoogleSheetsAction :Action: {
     has client_x509_cert_url:str = "";
     has universe_domain:str = "googleapis.com";
 
-    can on_enable() {
+    def on_enable() {
         self.on_register();
     }
 
-    can api() -> GoogleSheetsAPI {
+    def api() -> GoogleSheetsAPI {
         return GoogleSheetsAPI(
             key_or_url=self.key_or_url,
             worksheet_title=self.worksheet_title,
@@ -46,7 +46,7 @@ node GoogleSheetsAction :Action: {
         );
     }
 
-    can healthcheck() -> Union[bool, dict] {
+    def healthcheck() -> Union[bool, dict] {
         try {
             # Validate required credentials
             if not self.project_id or not self.private_key or not self.client_email or not self.token_uri {
