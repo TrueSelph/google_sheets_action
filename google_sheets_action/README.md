@@ -12,7 +12,7 @@ JIVAS action wrapper for Google Sheets automation using the [gspread API](https:
 ## Package Information
 - **Name:** `jivas/google_sheets_action`
 - **Author:** [V75 Inc.](https://v75inc.com/)
-- **Architype:** `GoogleSheetsAction`
+- **archetype:** `GoogleSheetsAction`
 
 ## Meta Information
 - **Title:** Google Sheets Action
@@ -23,7 +23,7 @@ JIVAS action wrapper for Google Sheets automation using the [gspread API](https:
 - **Singleton:** true
 
 ## Dependencies
-- **Jivas:** `~2.0.0-aplha.40`
+- **Jivas:** `~2.1.0`
 - **gspread:** 6.1.3
 
 ---

@@ -1,1 +1,3 @@
-include:jac google_sheets_action;
+import from actions.jivas.google_sheets_action {
+    google_sheets_action
+}
